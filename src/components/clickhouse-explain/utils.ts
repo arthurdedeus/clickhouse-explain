@@ -193,3 +193,11 @@ export function parseShareFromUrl(): ShareData | null {
   const encoded = hash.slice(7); // Remove '#share='
   return decodeShareData(encoded);
 }
+
+// Calculate the maximum depth of a plan tree
+export function getMaxDepth(node: PlanNode, currentDepth = 0): number {
+  if (!node.Plans || node.Plans.length === 0) {
+    return currentDepth;
+  }
+  return Math.max(...node.Plans.map(child => getMaxDepth(child, currentDepth + 1)));
+}

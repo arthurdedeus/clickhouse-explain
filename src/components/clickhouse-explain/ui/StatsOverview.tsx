@@ -8,9 +8,10 @@ interface StatsOverviewProps {
   plan: PlanNode;
   label?: string;
   accentColor?: string;
+  compact?: boolean;
 }
 
-export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) {
+export function StatsOverview({ plan, label, accentColor, compact = false }: StatsOverviewProps) {
   const stats = useMemo(() => extractPlanStats(plan), [plan]);
 
   const partsReduction = calculateReductionPercentage(
@@ -25,20 +26,20 @@ export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) 
   const baseColor = accentColor || '#8b5cf6';
 
   return (
-    <div style={{ marginBottom: 24 }}>
+    <div style={{ marginBottom: compact ? 16 : 24 }}>
       {label && (
         <div style={{
-          fontSize: 13,
+          fontSize: compact ? 12 : 13,
           fontWeight: 700,
           color: accentColor || '#f4f4f5',
-          marginBottom: 12,
+          marginBottom: compact ? 8 : 12,
           display: 'flex',
           alignItems: 'center',
           gap: 8
         }}>
           <span style={{
-            width: 12,
-            height: 12,
+            width: compact ? 10 : 12,
+            height: compact ? 10 : 12,
             background: accentColor,
             borderRadius: 3
           }} />
@@ -51,8 +52,8 @@ export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) 
         <div style={{
           display: 'grid',
           gridTemplateColumns: stats.totalRowsRead > 0 && stats.totalBytesRead > 0 ? '1fr 1fr' : '1fr',
-          gap: 12,
-          marginBottom: 16
+          gap: compact ? 8 : 12,
+          marginBottom: compact ? 12 : 16
         }}>
           {stats.totalRowsRead > 0 && (
             <LargeStatCard
@@ -62,6 +63,7 @@ export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) 
               gradientTo="rgba(251, 146, 60, 0.05)"
               valueColor="#fb923c"
               borderColor="rgba(251, 146, 60, 0.4)"
+              compact={compact}
             />
           )}
           {stats.totalBytesRead > 0 && (
@@ -72,6 +74,7 @@ export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) 
               gradientTo="rgba(244, 114, 182, 0.05)"
               valueColor="#f472b6"
               borderColor="rgba(244, 114, 182, 0.4)"
+              compact={compact}
             />
           )}
         </div>
@@ -82,26 +85,37 @@ export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) 
         <div style={{
           background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.08) 0%, rgba(251, 146, 60, 0.02) 100%)',
           border: '1px dashed rgba(251, 146, 60, 0.3)',
-          borderRadius: 10,
-          padding: '12px 16px',
-          marginBottom: 16,
+          borderRadius: compact ? 8 : 10,
+          padding: compact ? '8px 12px' : '12px 16px',
+          marginBottom: compact ? 12 : 16,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          gap: 8,
+          minWidth: 0
         }}>
-          <div>
-            <div style={{ fontSize: 11, color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              Estimated Rows (from granules)
+          <div style={{ minWidth: 0, overflow: 'hidden' }}>
+            <div style={{
+              fontSize: compact ? 10 : 11,
+              color: '#a1a1aa',
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              Est. Rows (from granules)
             </div>
-            <div style={{ fontSize: 10, color: '#71717a', marginTop: 2 }}>
+            <div style={{ fontSize: compact ? 9 : 10, color: '#71717a', marginTop: 2 }}>
               ~8,192 rows per granule
             </div>
           </div>
           <div style={{
-            fontSize: 20,
+            fontSize: compact ? 16 : 20,
             fontWeight: 700,
             color: '#fb923c',
-            fontFamily: '"JetBrains Mono", monospace'
+            fontFamily: '"JetBrains Mono", monospace',
+            flexShrink: 0
           }}>
             ~{formatNumber(stats.totalSelectedGranules * 8192)}
           </div>
@@ -111,14 +125,14 @@ export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) 
       {/* Quick stats grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-        gap: 12,
-        marginBottom: 16
+        gridTemplateColumns: compact ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(160px, 1fr))',
+        gap: compact ? 8 : 12,
+        marginBottom: compact ? 12 : 16
       }}>
-        <StatCard label="Pipeline Steps" value={stats.totalNodes} color={baseColor} />
-        <StatCard label="Tables Scanned" value={stats.tables.length} color="#14b8a6" />
-        <StatCard label="Indexes Used" value={stats.indexes.length} color="#22c55e" />
-        <StatCard label="Projections" value={stats.projections.length} color="#ec4899" />
+        <StatCard label="Pipeline Steps" value={stats.totalNodes} color={baseColor} compact={compact} />
+        <StatCard label="Tables Scanned" value={stats.tables.length} color="#14b8a6" compact={compact} />
+        <StatCard label="Indexes Used" value={stats.indexes.length} color="#22c55e" compact={compact} />
+        <StatCard label="Projections" value={stats.projections.length} color="#ec4899" compact={compact} />
       </div>
 
       {/* Index filtering efficiency */}
@@ -126,21 +140,21 @@ export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) 
         <div style={{
           background: '#18181b',
           border: '1px solid #27272a',
-          borderRadius: 12,
-          padding: 16
+          borderRadius: compact ? 10 : 12,
+          padding: compact ? 12 : 16
         }}>
           <div style={{
-            fontSize: 12,
+            fontSize: compact ? 10 : 12,
             fontWeight: 600,
             color: '#a1a1aa',
-            marginBottom: 12,
+            marginBottom: compact ? 8 : 12,
             textTransform: 'uppercase',
             letterSpacing: 1
           }}>
-            Overall Index Filtering Efficiency
+            Index Filtering
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: compact ? '1fr' : '1fr 1fr', gap: compact ? 12 : 24 }}>
             {stats.totalInitialParts > 0 && (
               <div style={{ minWidth: 0, overflow: 'hidden' }}>
                 <ProgressBar

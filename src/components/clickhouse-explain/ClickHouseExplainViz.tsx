@@ -187,18 +187,18 @@ function CompareVisualization({
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div style={{ minWidth: 0, overflow: 'hidden' }}>
-          <StatsOverview plan={planA} label={labelA} accentColor="#3b82f6" />
+          <StatsOverview plan={planA} label={labelA} accentColor="#3b82f6" compact />
           <PipelineContainer borderColor="rgba(59, 130, 246, 0.3)">
             <PipelineHeader label={`${labelA} Pipeline`} color="#3b82f6" />
-            <PlanNodeComponent node={planA} />
+            <PlanNodeComponent node={planA} isCompareMode />
           </PipelineContainer>
         </div>
 
         <div style={{ minWidth: 0, overflow: 'hidden' }}>
-          <StatsOverview plan={planB} label={labelB} accentColor="#a855f7" />
+          <StatsOverview plan={planB} label={labelB} accentColor="#a855f7" compact />
           <PipelineContainer borderColor="rgba(168, 85, 247, 0.3)">
             <PipelineHeader label={`${labelB} Pipeline`} color="#a855f7" />
-            <PlanNodeComponent node={planB} />
+            <PlanNodeComponent node={planB} isCompareMode />
           </PipelineContainer>
         </div>
       </div>
