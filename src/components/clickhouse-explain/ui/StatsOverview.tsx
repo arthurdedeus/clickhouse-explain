@@ -142,23 +142,27 @@ export function StatsOverview({ plan, label, accentColor }: StatsOverviewProps) 
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
             {stats.totalInitialParts > 0 && (
-              <ProgressBar
-                label="Parts"
-                selected={stats.totalSelectedParts}
-                initial={stats.totalInitialParts}
-                reductionPct={partsReduction}
-                accentColor={accentColor}
-              />
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                <ProgressBar
+                  label="Parts"
+                  selected={stats.totalSelectedParts}
+                  initial={stats.totalInitialParts}
+                  reductionPct={partsReduction}
+                  accentColor={accentColor}
+                />
+              </div>
             )}
 
             {stats.totalInitialGranules > 0 && (
-              <ProgressBar
-                label="Granules"
-                selected={stats.totalSelectedGranules}
-                initial={stats.totalInitialGranules}
-                reductionPct={granulesReduction}
-                accentColor={accentColor}
-              />
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                <ProgressBar
+                  label="Granules"
+                  selected={stats.totalSelectedGranules}
+                  initial={stats.totalInitialGranules}
+                  reductionPct={granulesReduction}
+                  accentColor={accentColor}
+                />
+              </div>
             )}
           </div>
         </div>

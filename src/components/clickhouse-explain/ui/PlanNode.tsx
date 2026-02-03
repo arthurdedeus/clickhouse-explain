@@ -40,13 +40,14 @@ interface CodeBlockProps {
 function CodeBlock({ label, value }: CodeBlockProps) {
   const displayValue = Array.isArray(value) ? value.join(', ') : value;
   return (
-    <div style={{ marginTop: 8, fontSize: 12, color: '#d4d4d8' }}>
+    <div style={{ marginTop: 8, fontSize: 12, color: '#d4d4d8', overflow: 'hidden' }}>
       <span style={{ color: '#a1a1aa' }}>{label}: </span>
       <code style={{
         background: 'rgba(0,0,0,0.25)',
         padding: '2px 6px',
         borderRadius: 4,
-        fontFamily: '"JetBrains Mono", monospace'
+        fontFamily: '"JetBrains Mono", monospace',
+        wordBreak: 'break-word'
       }}>
         {displayValue}
       </code>
@@ -74,8 +75,8 @@ export function PlanNodeComponent({ node, depth = 0 }: PlanNodeProps) {
   const hasProjections = node.Projections && node.Projections.length > 0;
 
   return (
-    <div style={{ marginLeft: depth === 0 ? 0 : 28 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
+    <div style={{ marginLeft: depth === 0 ? 0 : 28, minWidth: 0, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', position: 'relative', minWidth: 0 }}>
         {/* Tree connector line */}
         {depth > 0 && (
           <div style={{
@@ -107,13 +108,17 @@ export function PlanNodeComponent({ node, depth = 0 }: PlanNodeProps) {
           }}
         >
           {/* Node header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 20 }}>{style.icon}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+            <span style={{ fontSize: 20, flexShrink: 0 }}>{style.icon}</span>
             <span style={{
               fontFamily: '"JetBrains Mono", "Fira Code", monospace',
               fontWeight: 600,
               fontSize: 14,
-              color: '#f4f4f5'
+              color: '#f4f4f5',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              minWidth: 0
             }}>
               {node['Node Type']}
             </span>
@@ -123,7 +128,8 @@ export function PlanNodeComponent({ node, depth = 0 }: PlanNodeProps) {
                 color: '#a1a1aa',
                 fontSize: 12,
                 transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s ease'
+                transition: 'transform 0.2s ease',
+                flexShrink: 0
               }}>
                 ▶
               </span>

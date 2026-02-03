@@ -22,13 +22,14 @@ export function ProgressBar({
   const textColor = isGoodReduction ? '#22c55e' : '#eab308';
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+    <div style={{ minWidth: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, flexWrap: 'wrap', gap: 4 }}>
         <span style={{ color: '#d4d4d8', fontSize: 13 }}>{label}</span>
         <span style={{
           fontFamily: '"JetBrains Mono", monospace',
           fontSize: 13,
-          color: '#f4f4f5'
+          color: '#f4f4f5',
+          whiteSpace: 'nowrap'
         }}>
           {formatNumber(selected)} / {formatNumber(initial)}
           <span style={{
