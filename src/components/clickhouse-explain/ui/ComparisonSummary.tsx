@@ -18,6 +18,7 @@ interface MetricRow {
   formatFn?: (v: number) => string | null;
   suffix?: string;
   hide?: boolean;
+  isPercentage?: boolean;
 }
 
 export function ComparisonSummary({
@@ -76,14 +77,16 @@ export function ComparisonSummary({
       valueA: parseFloat(partsReductionA),
       valueB: parseFloat(partsReductionB),
       lowerIsBetter: false,
-      suffix: '%'
+      suffix: '%',
+      isPercentage: true
     },
     {
       label: 'Granules Filtered %',
       valueA: parseFloat(granulesReductionA),
       valueB: parseFloat(granulesReductionB),
       lowerIsBetter: false,
-      suffix: '%'
+      suffix: '%',
+      isPercentage: true
     },
     {
       label: 'Indexes Used',
@@ -191,7 +194,7 @@ export function ComparisonSummary({
                 {m.valueB !== undefined && m.valueB !== 0 ? formatVal(m.valueB) : '—'}
               </div>
               <div style={{ textAlign: 'right', padding: '8px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                <DeltaIndicator valueA={m.valueA} valueB={m.valueB} lowerIsBetter={m.lowerIsBetter} />
+                <DeltaIndicator valueA={m.valueA} valueB={m.valueB} lowerIsBetter={m.lowerIsBetter} isPercentage={m.isPercentage} />
               </div>
             </React.Fragment>
           );

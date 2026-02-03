@@ -41,6 +41,7 @@ export default function ClickHouseExplainViz() {
     setLabelB,
     parseAndVisualize,
     canVisualize,
+    getShareUrl,
   } = useExplainParser();
 
   return (
@@ -58,6 +59,7 @@ export default function ClickHouseExplainViz() {
         canVisualize={canVisualize}
         onModeChange={setMode}
         onTabChange={setActiveTab}
+        onShare={getShareUrl}
       />
 
       <main style={{ padding: '24px 32px', maxWidth: 1400, margin: '0 auto' }}>

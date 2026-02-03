@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { PlanNode, PlanStats, ViewMode, ActiveTab } from '../types';
-import { parseExplainJson, extractPlanStats } from '../utils';
+import { parseExplainJson, extractPlanStats, parseShareFromUrl, generateShareUrl, ShareData } from '../utils';
 import {
   DEFAULT_QUERY_A,
   DEFAULT_QUERY_B,
@@ -38,6 +38,7 @@ export interface ExplainParserActions {
   setLabelB: (label: string) => void;
   parseAndVisualize: () => void;
   canVisualize: boolean;
+  getShareUrl: () => string;
 }
 
 export function useExplainParser(): ExplainParserState & ExplainParserActions {
@@ -57,6 +58,54 @@ export function useExplainParser(): ExplainParserState & ExplainParserActions {
   const setMode = useCallback((newMode: ViewMode) => {
     setModeState(newMode);
     setActiveTab('input');
+  }, []);
+
+  // Load from shared URL on mount
+  useEffect(() => {
+    const shareData = parseShareFromUrl();
+    if (shareData) {
+      setModeState(shareData.mode);
+      setQueryA(shareData.queryA || '');
+      setExplainJsonA(shareData.explainJsonA);
+      if (shareData.mode === 'compare') {
+        setQueryB(shareData.queryB || '');
+        setExplainJsonB(shareData.explainJsonB || '');
+        setLabelA(shareData.labelA || 'Plan A');
+        setLabelB(shareData.labelB || 'Plan B');
+      }
+      // Auto-parse after loading
+      setTimeout(() => {
+        // Trigger visualization after state is set
+        let planA: PlanNode | null = null;
+        let planB: PlanNode | null = null;
+        try {
+          planA = parseExplainJson(shareData.explainJsonA);
+          setParsedPlanA(planA);
+          setErrorA(null);
+        } catch (e) {
+          setErrorA(`Plan A: ${(e as Error).message}`);
+        }
+        if (shareData.mode === 'compare' && shareData.explainJsonB) {
+          try {
+            planB = parseExplainJson(shareData.explainJsonB);
+            setParsedPlanB(planB);
+            setErrorB(null);
+          } catch (e) {
+            setErrorB(`Plan B: ${(e as Error).message}`);
+          }
+        }
+        const canSwitch = shareData.mode === 'single'
+          ? planA !== null
+          : planA !== null && planB !== null;
+        if (canSwitch) {
+          setActiveTab('viz');
+        }
+      }, 0);
+      // Clear the hash after loading to keep URL clean for future shares
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
   }, []);
 
   const parseAndVisualize = useCallback(() => {
@@ -107,6 +156,21 @@ export function useExplainParser(): ExplainParserState & ExplainParserActions {
     ? parsedPlanA !== null
     : parsedPlanA !== null && parsedPlanB !== null;
 
+  const getShareUrl = useCallback(() => {
+    const shareData: ShareData = {
+      mode,
+      queryA,
+      explainJsonA,
+    };
+    if (mode === 'compare') {
+      shareData.queryB = queryB;
+      shareData.explainJsonB = explainJsonB;
+      shareData.labelA = labelA;
+      shareData.labelB = labelB;
+    }
+    return generateShareUrl(shareData);
+  }, [mode, queryA, queryB, explainJsonA, explainJsonB, labelA, labelB]);
+
   return {
     mode,
     activeTab,
@@ -132,5 +196,6 @@ export function useExplainParser(): ExplainParserState & ExplainParserActions {
     setLabelB,
     parseAndVisualize,
     canVisualize,
+    getShareUrl,
   };
 }

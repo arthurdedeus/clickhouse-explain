@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import type { ViewMode, ActiveTab } from '../types';
 
 interface HeaderProps {
@@ -7,6 +9,7 @@ interface HeaderProps {
   canVisualize: boolean;
   onModeChange: (mode: ViewMode) => void;
   onTabChange: (tab: ActiveTab) => void;
+  onShare?: () => string;
 }
 
 export function Header({
@@ -14,8 +17,31 @@ export function Header({
   activeTab,
   canVisualize,
   onModeChange,
-  onTabChange
+  onTabChange,
+  onShare
 }: HeaderProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    if (!onShare) return;
+    const url = onShare();
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <header style={{
       padding: '24px 32px',
@@ -76,6 +102,11 @@ export function Header({
             disabled={!canVisualize}
             onClick={() => onTabChange('viz')}
           />
+
+          {/* Share button - only show when visualization is active */}
+          {activeTab === 'viz' && canVisualize && onShare && (
+            <ShareButton copied={copied} onClick={handleShare} />
+          )}
         </div>
       </div>
     </header>
@@ -159,6 +190,52 @@ function TabButton({ label, isActive, disabled, onClick }: TabButtonProps) {
       }}
     >
       {label}
+    </button>
+  );
+}
+
+interface ShareButtonProps {
+  copied: boolean;
+  onClick: () => void;
+}
+
+function ShareButton({ copied, onClick }: ShareButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '8px 16px',
+        background: copied ? '#22c55e' : 'transparent',
+        color: copied ? '#fff' : '#a1a1aa',
+        border: '1px solid',
+        borderColor: copied ? '#22c55e' : '#3f3f46',
+        borderRadius: 8,
+        cursor: 'pointer',
+        fontWeight: 600,
+        fontSize: 13,
+        transition: 'all 0.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6
+      }}
+    >
+      {copied ? (
+        <>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Copied!
+        </>
+      ) : (
+        <>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
+          Share
+        </>
+      )}
     </button>
   );
 }
