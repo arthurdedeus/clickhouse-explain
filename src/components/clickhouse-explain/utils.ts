@@ -1,5 +1,6 @@
 import type { PlanNode, PlanStats, NodeColorStyle } from './types';
 import { NODE_COLORS } from './constants';
+import LZString from 'lz-string';
 
 export function getNodeStyle(nodeType?: string): NodeColorStyle {
   if (!nodeType) return NODE_COLORS.default;
@@ -122,58 +123,53 @@ export interface ShareData {
   labelB?: string;
 }
 
-function compressString(str: string): string {
-  // Simple compression: use encodeURIComponent + base64
-  // For larger payloads, consider using pako/lz-string
-  try {
-    const encoded = encodeURIComponent(str);
-    if (typeof window !== 'undefined') {
-      return btoa(encoded);
-    }
-    return Buffer.from(encoded).toString('base64');
-  } catch {
-    return '';
-  }
-}
-
-function decompressString(compressed: string): string {
-  try {
-    let decoded: string;
-    if (typeof window !== 'undefined') {
-      decoded = atob(compressed);
-    } else {
-      decoded = Buffer.from(compressed, 'base64').toString();
-    }
-    return decodeURIComponent(decoded);
-  } catch {
-    return '';
-  }
-}
-
 export function encodeShareData(data: ShareData): string {
   const json = JSON.stringify(data);
-  const compressed = compressString(json);
-  // Make URL-safe: replace + with -, / with _, remove =
-  return compressed.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  // Use lz-string for efficient compression with URL-safe output
+  return LZString.compressToEncodedURIComponent(json);
 }
 
-export function decodeShareData(encoded: string): ShareData | null {
+// Legacy decoder for backward compatibility with old base64-encoded links
+function decodeLegacyShareData(encoded: string): ShareData | null {
   try {
-    // Restore from URL-safe format
+    // Restore from URL-safe base64 format
     let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
     // Add back padding
     while (base64.length % 4) {
       base64 += '=';
     }
-    const json = decompressString(base64);
+    let decoded: string;
+    if (typeof window !== 'undefined') {
+      decoded = atob(base64);
+    } else {
+      decoded = Buffer.from(base64, 'base64').toString();
+    }
+    const json = decodeURIComponent(decoded);
     if (!json) return null;
     const data = JSON.parse(json);
-    // Validate required fields
     if (!data.mode || !data.explainJsonA) return null;
     return data as ShareData;
   } catch {
     return null;
   }
+}
+
+export function decodeShareData(encoded: string): ShareData | null {
+  // First try lz-string decompression (new format)
+  try {
+    const json = LZString.decompressFromEncodedURIComponent(encoded);
+    if (json) {
+      const data = JSON.parse(json);
+      if (data.mode && data.explainJsonA) {
+        return data as ShareData;
+      }
+    }
+  } catch {
+    // Fall through to legacy decoder
+  }
+
+  // Fall back to legacy base64 decoding for old links
+  return decodeLegacyShareData(encoded);
 }
 
 export function generateShareUrl(data: ShareData): string {
