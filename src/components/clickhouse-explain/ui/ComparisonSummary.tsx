@@ -18,6 +18,7 @@ interface MetricRow {
   formatFn?: (v: number) => string | null;
   suffix?: string;
   hide?: boolean;
+  isPercentage?: boolean;
 }
 
 export function ComparisonSummary({
@@ -76,14 +77,16 @@ export function ComparisonSummary({
       valueA: parseFloat(partsReductionA),
       valueB: parseFloat(partsReductionB),
       lowerIsBetter: false,
-      suffix: '%'
+      suffix: '%',
+      isPercentage: true
     },
     {
       label: 'Granules Filtered %',
       valueA: parseFloat(granulesReductionA),
       valueB: parseFloat(granulesReductionB),
       lowerIsBetter: false,
-      suffix: '%'
+      suffix: '%',
+      isPercentage: true
     },
     {
       label: 'Indexes Used',
@@ -153,9 +156,10 @@ export function ComparisonSummary({
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 100px 100px 80px',
+        gridTemplateColumns: 'minmax(100px, 1fr) minmax(80px, 100px) minmax(80px, 100px) minmax(60px, 80px)',
         gap: 8,
-        fontSize: 12
+        fontSize: 12,
+        overflow: 'hidden'
       }}>
         <div style={{ color: '#71717a', fontWeight: 600, paddingBottom: 8, borderBottom: '1px solid #27272a' }}>Metric</div>
         <div style={{ color: '#3b82f6', fontWeight: 600, textAlign: 'right', paddingBottom: 8, borderBottom: '1px solid #27272a' }}>{labelA}</div>
@@ -166,12 +170,15 @@ export function ComparisonSummary({
           const formatVal = m.formatFn || ((v: number) => `${formatNumber(v)}${m.suffix || ''}`);
           return (
             <React.Fragment key={m.label}>
-              <div style={{ color: '#d4d4d8', padding: '8px 0' }}>{m.label}</div>
+              <div style={{ color: '#d4d4d8', padding: '8px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</div>
               <div style={{
                 color: '#f4f4f5',
                 textAlign: 'right',
                 padding: '8px 0',
-                fontFamily: '"JetBrains Mono", monospace'
+                fontFamily: '"JetBrains Mono", monospace',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
               }}>
                 {m.valueA !== undefined && m.valueA !== 0 ? formatVal(m.valueA) : '—'}
               </div>
@@ -179,12 +186,15 @@ export function ComparisonSummary({
                 color: '#f4f4f5',
                 textAlign: 'right',
                 padding: '8px 0',
-                fontFamily: '"JetBrains Mono", monospace'
+                fontFamily: '"JetBrains Mono", monospace',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
               }}>
                 {m.valueB !== undefined && m.valueB !== 0 ? formatVal(m.valueB) : '—'}
               </div>
-              <div style={{ textAlign: 'right', padding: '8px 0' }}>
-                <DeltaIndicator valueA={m.valueA} valueB={m.valueB} lowerIsBetter={m.lowerIsBetter} />
+              <div style={{ textAlign: 'right', padding: '8px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <DeltaIndicator valueA={m.valueA} valueB={m.valueB} lowerIsBetter={m.lowerIsBetter} isPercentage={m.isPercentage} />
               </div>
             </React.Fragment>
           );

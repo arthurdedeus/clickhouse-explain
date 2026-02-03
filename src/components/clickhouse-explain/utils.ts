@@ -110,3 +110,94 @@ export function calculateReductionPercentage(initial: number, selected: number):
   if (initial <= 0) return '0';
   return ((1 - selected / initial) * 100).toFixed(0);
 }
+
+// Share URL utilities
+export interface ShareData {
+  mode: 'single' | 'compare';
+  queryA: string;
+  explainJsonA: string;
+  queryB?: string;
+  explainJsonB?: string;
+  labelA?: string;
+  labelB?: string;
+}
+
+function compressString(str: string): string {
+  // Simple compression: use encodeURIComponent + base64
+  // For larger payloads, consider using pako/lz-string
+  try {
+    const encoded = encodeURIComponent(str);
+    if (typeof window !== 'undefined') {
+      return btoa(encoded);
+    }
+    return Buffer.from(encoded).toString('base64');
+  } catch {
+    return '';
+  }
+}
+
+function decompressString(compressed: string): string {
+  try {
+    let decoded: string;
+    if (typeof window !== 'undefined') {
+      decoded = atob(compressed);
+    } else {
+      decoded = Buffer.from(compressed, 'base64').toString();
+    }
+    return decodeURIComponent(decoded);
+  } catch {
+    return '';
+  }
+}
+
+export function encodeShareData(data: ShareData): string {
+  const json = JSON.stringify(data);
+  const compressed = compressString(json);
+  // Make URL-safe: replace + with -, / with _, remove =
+  return compressed.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+export function decodeShareData(encoded: string): ShareData | null {
+  try {
+    // Restore from URL-safe format
+    let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    // Add back padding
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    const json = decompressString(base64);
+    if (!json) return null;
+    const data = JSON.parse(json);
+    // Validate required fields
+    if (!data.mode || !data.explainJsonA) return null;
+    return data as ShareData;
+  } catch {
+    return null;
+  }
+}
+
+export function generateShareUrl(data: ShareData): string {
+  const encoded = encodeShareData(data);
+  if (typeof window !== 'undefined') {
+    const url = new URL(window.location.href);
+    url.hash = `share=${encoded}`;
+    return url.toString();
+  }
+  return `#share=${encoded}`;
+}
+
+export function parseShareFromUrl(): ShareData | null {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash;
+  if (!hash.startsWith('#share=')) return null;
+  const encoded = hash.slice(7); // Remove '#share='
+  return decodeShareData(encoded);
+}
+
+// Calculate the maximum depth of a plan tree
+export function getMaxDepth(node: PlanNode, currentDepth = 0): number {
+  if (!node.Plans || node.Plans.length === 0) {
+    return currentDepth;
+  }
+  return Math.max(...node.Plans.map(child => getMaxDepth(child, currentDepth + 1)));
+}

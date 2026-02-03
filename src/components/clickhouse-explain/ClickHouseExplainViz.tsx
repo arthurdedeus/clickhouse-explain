@@ -41,6 +41,7 @@ export default function ClickHouseExplainViz() {
     setLabelB,
     parseAndVisualize,
     canVisualize,
+    getShareUrl,
   } = useExplainParser();
 
   return (
@@ -58,6 +59,7 @@ export default function ClickHouseExplainViz() {
         canVisualize={canVisualize}
         onModeChange={setMode}
         onTabChange={setActiveTab}
+        onShare={getShareUrl}
       />
 
       <main style={{ padding: '24px 32px', maxWidth: 1400, margin: '0 auto' }}>
@@ -184,19 +186,19 @@ function CompareVisualization({
       />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div>
-          <StatsOverview plan={planA} label={labelA} accentColor="#3b82f6" />
+        <div style={{ minWidth: 0, overflow: 'hidden' }}>
+          <StatsOverview plan={planA} label={labelA} accentColor="#3b82f6" compact />
           <PipelineContainer borderColor="rgba(59, 130, 246, 0.3)">
             <PipelineHeader label={`${labelA} Pipeline`} color="#3b82f6" />
-            <PlanNodeComponent node={planA} />
+            <PlanNodeComponent node={planA} isCompareMode />
           </PipelineContainer>
         </div>
 
-        <div>
-          <StatsOverview plan={planB} label={labelB} accentColor="#a855f7" />
+        <div style={{ minWidth: 0, overflow: 'hidden' }}>
+          <StatsOverview plan={planB} label={labelB} accentColor="#a855f7" compact />
           <PipelineContainer borderColor="rgba(168, 85, 247, 0.3)">
             <PipelineHeader label={`${labelB} Pipeline`} color="#a855f7" />
-            <PlanNodeComponent node={planB} />
+            <PlanNodeComponent node={planB} isCompareMode />
           </PipelineContainer>
         </div>
       </div>
@@ -217,7 +219,9 @@ function PipelineContainer({ children, borderColor = '#27272a' }: PipelineContai
       background: '#18181b',
       border: `1px solid ${borderColor}`,
       borderRadius: 16,
-      padding: borderColor === '#27272a' ? 24 : 20
+      padding: borderColor === '#27272a' ? 24 : 20,
+      overflow: 'hidden',
+      minWidth: 0
     }}>
       {children}
     </div>

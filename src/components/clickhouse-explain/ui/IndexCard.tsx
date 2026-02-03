@@ -5,29 +5,30 @@ import { FilterRatioBar } from './FilterRatioBar';
 
 interface IndexCardProps {
   index: IndexInfo;
+  compact?: boolean;
 }
 
-export function IndexCard({ index }: IndexCardProps) {
+export function IndexCard({ index, compact = false }: IndexCardProps) {
   const colors = INDEX_COLORS[index.Type] || INDEX_COLORS.Skip;
 
   return (
     <div style={{
       background: colors.bg,
       border: `1px solid ${colors.border}`,
-      borderRadius: 8,
-      padding: '10px 12px',
-      marginTop: 6
+      borderRadius: compact ? 6 : 8,
+      padding: compact ? '8px 10px' : '10px 12px'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: compact ? 6 : 8, flexWrap: 'wrap', minWidth: 0 }}>
         <span style={{
           background: colors.badge,
           color: '#000',
-          padding: '2px 8px',
+          padding: compact ? '1px 6px' : '2px 8px',
           borderRadius: 4,
-          fontSize: 10,
+          fontSize: compact ? 9 : 10,
           fontWeight: 700,
           textTransform: 'uppercase',
-          letterSpacing: 0.5
+          letterSpacing: 0.5,
+          flexShrink: 0
         }}>
           {index.Type}
         </span>
@@ -35,8 +36,12 @@ export function IndexCard({ index }: IndexCardProps) {
           <span style={{
             color: colors.text,
             fontFamily: '"JetBrains Mono", monospace',
-            fontSize: 12,
-            fontWeight: 600
+            fontSize: compact ? 11 : 12,
+            fontWeight: 600,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0
           }}>
             {index.Name}
           </span>
@@ -45,7 +50,11 @@ export function IndexCard({ index }: IndexCardProps) {
           <span style={{
             color: colors.text,
             fontFamily: '"JetBrains Mono", monospace',
-            fontSize: 12
+            fontSize: compact ? 10 : 12,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0
           }}>
             [{index.Keys.join(', ')}]
           </span>
@@ -53,10 +62,11 @@ export function IndexCard({ index }: IndexCardProps) {
         {index['Search Algorithm'] && (
           <span style={{
             background: 'rgba(0,0,0,0.3)',
-            padding: '2px 6px',
+            padding: compact ? '1px 4px' : '2px 6px',
             borderRadius: 4,
-            fontSize: 10,
-            color: '#a1a1aa'
+            fontSize: compact ? 9 : 10,
+            color: '#a1a1aa',
+            flexShrink: 0
           }}>
             {index['Search Algorithm']}
           </span>
@@ -65,20 +75,21 @@ export function IndexCard({ index }: IndexCardProps) {
 
       {index.Condition && (
         <div style={{
-          marginTop: 6,
-          fontSize: 11,
+          marginTop: compact ? 4 : 6,
+          fontSize: compact ? 10 : 11,
           color: '#d4d4d8',
           fontFamily: '"JetBrains Mono", monospace',
           background: 'rgba(0,0,0,0.25)',
-          padding: '4px 8px',
+          padding: compact ? '3px 6px' : '4px 8px',
           borderRadius: 4,
-          wordBreak: 'break-all'
+          wordBreak: 'break-word',
+          overflow: 'hidden'
         }}>
           {index.Condition}
         </div>
       )}
 
-      {index.Description && (
+      {index.Description && !compact && (
         <div style={{ marginTop: 4, fontSize: 11, color: '#a1a1aa' }}>
           {index.Description}
         </div>
@@ -88,14 +99,16 @@ export function IndexCard({ index }: IndexCardProps) {
         initial={index['Initial Parts']}
         selected={index['Selected Parts']}
         label="Parts"
+        compact={compact}
       />
       <FilterRatioBar
         initial={index['Initial Granules']}
         selected={index['Selected Granules']}
         label="Granules"
+        compact={compact}
       />
 
-      {index.Ranges !== undefined && (
+      {index.Ranges !== undefined && !compact && (
         <div style={{
           marginTop: 6,
           fontSize: 11,

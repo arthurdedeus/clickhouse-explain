@@ -4,19 +4,21 @@ interface StatCardProps {
   label: string;
   value: string | number;
   color: string;
+  compact?: boolean;
 }
 
-export function StatCard({ label, value, color }: StatCardProps) {
+export function StatCard({ label, value, color, compact = false }: StatCardProps) {
   return (
     <div style={{
       background: `linear-gradient(135deg, ${color}15 0%, ${color}08 100%)`,
       border: `1px solid ${color}40`,
-      borderRadius: 10,
-      padding: '14px 16px',
-      textAlign: 'center'
+      borderRadius: compact ? 8 : 10,
+      padding: compact ? '10px 12px' : '14px 16px',
+      textAlign: 'center',
+      minWidth: 0
     }}>
       <div style={{
-        fontSize: 24,
+        fontSize: compact ? 18 : 24,
         fontWeight: 700,
         color: color,
         fontFamily: '"JetBrains Mono", monospace'
@@ -24,11 +26,14 @@ export function StatCard({ label, value, color }: StatCardProps) {
         {value || '0'}
       </div>
       <div style={{
-        fontSize: 11,
+        fontSize: compact ? 9 : 11,
         color: '#a1a1aa',
-        marginTop: 4,
+        marginTop: compact ? 2 : 4,
         textTransform: 'uppercase',
-        letterSpacing: 0.5
+        letterSpacing: 0.5,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
       }}>
         {label}
       </div>
@@ -44,6 +49,7 @@ interface LargeStatCardProps {
   valueColor: string;
   borderColor: string;
   subLabel?: string;
+  compact?: boolean;
 }
 
 export function LargeStatCard({
@@ -53,18 +59,20 @@ export function LargeStatCard({
   gradientTo,
   valueColor,
   borderColor,
-  subLabel
+  subLabel,
+  compact = false
 }: LargeStatCardProps) {
   return (
     <div style={{
       background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)`,
       border: `1px solid ${borderColor}`,
-      borderRadius: 10,
-      padding: '14px 16px',
-      textAlign: 'center'
+      borderRadius: compact ? 8 : 10,
+      padding: compact ? '10px 12px' : '14px 16px',
+      textAlign: 'center',
+      minWidth: 0
     }}>
       <div style={{
-        fontSize: 24,
+        fontSize: compact ? 18 : 24,
         fontWeight: 700,
         color: valueColor,
         fontFamily: '"JetBrains Mono", monospace'
@@ -72,15 +80,18 @@ export function LargeStatCard({
         {value}
       </div>
       <div style={{
-        fontSize: 11,
+        fontSize: compact ? 9 : 11,
         color: '#a1a1aa',
-        marginTop: 4,
+        marginTop: compact ? 2 : 4,
         textTransform: 'uppercase',
-        letterSpacing: 0.5
+        letterSpacing: 0.5,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
       }}>
         {label}
       </div>
-      {subLabel && (
+      {subLabel && !compact && (
         <div style={{ fontSize: 10, color: '#71717a', marginTop: 2 }}>
           {subLabel}
         </div>
